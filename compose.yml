@@ -1,12 +1,56 @@
 version: "3.8"
 
 services:
-  echo:
-    image: jmalloc/echo-server
+  ui:
+    container_name: ui
+    image: nicholasjackson/fake-service:v0.23.1
+    environment:
+      LISTEN_ADDR: 0.0.0.0:9090
+      UPSTREAM_URIS: "http://api:9090"
+      MESSAGE: "This is UI"
+      NAME: "UI"
+      SERVER_TYPE: "http"
+      HTTP_CLIENT_APPEND_REQUEST: "true"
+    ports:
+      - "8090:9090"
 
-  haproxy:
-    image: haproxy:1.7
+  ui20:
+    container_name: ui20
+    image: nicholasjackson/fake-service:v0.23.1
+    environment:
+      LISTEN_ADDR: 0.0.0.0:9090
+      UPSTREAM_URIS: "http://api:9090"
+      MESSAGE: "This is UI20"
+      NAME: "UI20"
+      SERVER_TYPE: "http"
+      HTTP_CLIENT_APPEND_REQUEST: "true"
+    ports:
+      - "8091:9090"
+
+  api:
+    container_name: api
+    image: nicholasjackson/fake-service:v0.23.1
+    environment:
+      LISTEN_ADDR: 0.0.0.0:9090
+      MESSAGE: "This is API"
+      NAME: "API"
+      SERVER_TYPE: "http"
+    ports:
+      - "8092:9090"
+
+  haproxy-ui:
+    container_name: haproxy-ui
+    image: haproxy:2.0.9-alpine
     volumes:
-      - ./conf/:/usr/local/etc/haproxy/
+      - ./conf/ui:/usr/local/etc/haproxy
     ports:
       - "8080:80"
+      - "1936:1936"
+  haproxy-api:
+    container_name: haproxy-api
+    image: haproxy:2.0.9-alpine
+    volumes:
+      - ./conf/api:/usr/local/etc/haproxy
+    ports:
+      - "8081:80"
+      - "1937:1936"
